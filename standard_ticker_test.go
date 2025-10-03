@@ -32,11 +32,3 @@ func TestStandardTickerWithSyncTest(t *testing.T) {
 	})
 }
 
-func channelHasValue(ch <-chan time.Time) bool {
-	select {
-	case <-ch:
-		return true
-	default:
-		return false
-	}
-}
