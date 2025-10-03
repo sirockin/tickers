@@ -10,14 +10,12 @@ import (
 
 // Test passes but uses real time so is slow and flaky
 func TestStandardTickerWithRealClock(t *testing.T) {
-	synctest.Test(t, func(t *testing.T) {
-		ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(2 * time.Second)
 
-		time.Sleep(1900 * time.Millisecond)
-		assert.False(t, channelHasValue(ticker.C), "Ticker channel should not have value immediately after creation")
-		time.Sleep(200 * time.Millisecond)
-		assert.True(t, channelHasValue(ticker.C), "Ticker channel should have value after 2.1s")
-	})
+	time.Sleep(1900 * time.Millisecond)
+	assert.False(t, channelHasValue(ticker.C), "Ticker channel should not have value immediately after creation")
+	time.Sleep(200 * time.Millisecond)
+	assert.True(t, channelHasValue(ticker.C), "Ticker channel should have value after 2.1s")
 }
 
 // Using synctest to control time makes the test fast and reliable
