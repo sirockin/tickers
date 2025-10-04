@@ -11,11 +11,11 @@ func TestStandardTickerWithRealClock(t *testing.T) {
 	ticker := time.NewTicker(2 * time.Second)
 
 	time.Sleep(1900 * time.Millisecond)
-	if channelHasValue(ticker.C) {
+	if valueHasArrived(ticker.C) {
 		t.Fatalf("Ticker channel should not have value immediately after creation")
 	}
 	time.Sleep(200 * time.Millisecond)
-	if !channelHasValue(ticker.C) {
+	if !valueHasArrived(ticker.C) {
 		t.Fatalf("Ticker channel should have value after 2.1s")
 	}
 }
@@ -27,14 +27,13 @@ func TestStandardTickerWithSyncTest(t *testing.T) {
 
 		time.Sleep(1999 * time.Millisecond)
 		synctest.Wait() // wait for background activity to complete
-		if channelHasValue(ticker.C) {
+		if valueHasArrived(ticker.C) {
 			t.Fatalf("Ticker channel should not have value immediately after creation")
 		}
 		time.Sleep(1 * time.Millisecond)
 		synctest.Wait() // wait for background activity to complete
-		if !channelHasValue(ticker.C) {
+		if !valueHasArrived(ticker.C) {
 			t.Fatalf("Ticker channel should have value after 2.1s")
 		}
 	})
 }
-

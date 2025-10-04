@@ -20,7 +20,7 @@ func NewExponential(initialDuration time.Duration, factor float64) *Exponential 
     }
 
     go func() {
-        ticker := time.NewTicker(e.interval)
+        ticker := time.NewTimer(e.interval)
         defer ticker.Stop()
 
         for {
@@ -29,7 +29,7 @@ func NewExponential(initialDuration time.Duration, factor float64) *Exponential 
                 e.C <- t
                 ticker.Stop()
                 e.interval = time.Duration(float64(e.interval) * e.factor)
-                ticker = time.NewTicker(e.interval)
+                ticker = time.NewTimer(e.interval)
             case <-e.done:
                 return
             }

@@ -43,13 +43,13 @@ func TestExponentialIntervals(t *testing.T) {
 				defer ticker.Stop()
 				for i, expectedInterval := range tc.expectedIntervals {
 					time.Sleep(expectedInterval - 1*time.Millisecond)
-					synctest.Wait()	// wait for background activity to complete
-					if channelHasValue(ticker.C) {
+					synctest.Wait() // Make sure any goroutines are unlocked
+					if valueHasArrived(ticker.C) {
 						t.Fatalf("Ticker channel should not have value before interval %d", i)
 					}
 					time.Sleep(1 * time.Millisecond)
-					synctest.Wait()	// wait for background activity to complete
-					if !channelHasValue(ticker.C) {
+					synctest.Wait() // Make sure any goroutines are unlocked
+					if !valueHasArrived(ticker.C) {
 						t.Fatalf("Ticker channel should have value after interval %d", i)
 					}
 				}
@@ -62,14 +62,14 @@ func TestExponentialStop(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		ticker := tickers.NewExponential(1*time.Second, 2)
 		time.Sleep(999 * time.Millisecond)
-		synctest.Wait() // wait for background activity to complete
-		if channelHasValue(ticker.C) {
+		synctest.Wait() // Make sure any goroutines are unlocked
+		if valueHasArrived(ticker.C) {
 			t.Fatalf("Ticker channel should not have value immediately after creation")
 		}
 		ticker.Stop()
-		time.Sleep(100 * time.Hour)	// I can provide a very long wait here because time is mocked
-		synctest.Wait() // wait for background activity to complete
-		if channelHasValue(ticker.C) {
+		time.Sleep(100 * time.Hour) // I can provide a very long wait here because time is mocked
+		synctest.Wait()             // Make sure any goroutines are unlocked
+		if valueHasArrived(ticker.C) {
 			t.Fatalf("Ticker channel should not have value after Stop()")
 		}
 	})
