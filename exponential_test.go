@@ -49,8 +49,13 @@ func TestExponentialIntervals(t *testing.T) {
 					}
 					time.Sleep(1 * time.Millisecond)
 					synctest.Wait() // Make sure any goroutines are unlocked
-					if !valueHasArrived(ticker.C) {
-						t.Fatalf("Ticker channel should have value after interval %d", i)
+					got, ok := receivedValue(ticker.C)
+					if !ok {
+						t.Fatalf("Ticker channel should have value after interval has elapsed")
+					}
+					expected := time.Now()
+					if got != expected {
+						t.Fatalf("Expected: %v but got %v", expected, got)
 					}
 				}
 			})
