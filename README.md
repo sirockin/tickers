@@ -1,4 +1,4 @@
-## Tickers (Work in Progress)
+## Tickers
 
 An implementation of an exponential Ticker - `tickers.Exponential` with a similar interface to `time.Ticker` but providing an exponentially increasing delay with optional Jitter.
 
