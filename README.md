@@ -1,6 +1,8 @@
 ## Tickers (Work in Progress)
 
-A demonstration of the testing/synctest package.
+An implementation of an exponential Ticker - `tickers.Exponential` with a similar interface to `time.Ticker` but providing an exponentially increasing delay with optional Jitter.
+
+This may be useful in itself but its main purpose is to demonstrate asynchronous testing using the [testing/synctest](https://pkg.go.dev/testing/synctest) package.
 
 ### About synctest
 
@@ -8,8 +10,5 @@ Introduced in Go 1.25 the [testing/synctest](https://pkg.go.dev/testing/synctest
 
 The clock is mocked by wrapping the test function with `synctest.Test`. Calling `synctest.Wait` ensures that goroutines started inside the test complete their work.
 
-### About this repository
-
-We implement and test a new ticker type - `tickers.Exponential` which implements an exponential backoff ticker.
 
 
