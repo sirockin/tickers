@@ -122,8 +122,7 @@ func TestExponentialStop(t *testing.T) {
 			synctest.Test(t, func(t *testing.T) {
 				ticker := tickers.NewExponential(1*time.Second, 2)
 
-				for i := 0; i < numIntervals; i++ {
-					fmt.Printf("Getting next interval: %d\n", i)
+				for range numIntervals {
 					<-ticker.C
 				}
 				ticker.Stop()
