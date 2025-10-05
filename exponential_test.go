@@ -1,6 +1,7 @@
 package tickers_test
 
 import (
+	"fmt"
 	"testing"
 	"testing/synctest"
 	"time"
@@ -61,9 +62,9 @@ func TestExponentialIntervals(t *testing.T) {
 
 func TestExponentialWithJitter(t *testing.T) {
 	cases := map[string]struct {
-		initialDuration   time.Duration
-		factor            float64
-		jitter            time.Duration
+		initialDuration      time.Duration
+		factor               float64
+		jitter               time.Duration
 		expectedMinIntervals []time.Duration
 	}{
 		"factor 2": {
@@ -115,16 +116,23 @@ func TestExponentialWithJitter(t *testing.T) {
 }
 
 func TestExponentialStop(t *testing.T) {
-	synctest.Test(t, func(t *testing.T) {
-		ticker := tickers.NewExponential(1*time.Second, 2)
-		<- ticker.C
-		<- ticker.C
-		ticker.Stop()
+	cases := []int{0,2,40}
+	for _, numIntervals := range cases {
+		t.Run(fmt.Sprintf("Stop after %d intervals", numIntervals), func(t *testing.T) {
+			synctest.Test(t, func(t *testing.T) {
+				ticker := tickers.NewExponential(1*time.Second, 2)
 
-		time.Sleep(100 * time.Hour) // We can provide a very long wait here because time is mocked
-		synctest.Wait()	// Wait in case goroutines are running
-		if _, ok := receivedValue(ticker.C); ok {
-			t.Fatalf("Ticker channel should not have value after Stop()")
-		}
-	})
+				for i := 0; i < numIntervals; i++ {
+					fmt.Printf("Getting next interval: %d\n", i)
+					<-ticker.C
+				}
+				ticker.Stop()
+
+				synctest.Wait() // Wait for goroutines to exit
+				if _, ok := receivedValue(ticker.C); ok {
+					t.Fatalf("Ticker channel should not have value after Stop()")
+				}
+			})
+		})
+	}
 }
