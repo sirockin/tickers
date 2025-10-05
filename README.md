@@ -10,8 +10,6 @@ The clock is mocked by wrapping the test function with `synctest.Test`. Calling 
 
 ### About this repository
 
-We demonstrate a simple comparison test for the standard `time.Ticker` using both real time and `synctest`. The test using real time is slow and flaky, while the test using `synctest` is fast and reliable.
-
-We also test implement a new ticker type - `tickers.Exponential` which implements an exponential backoff ticker. This is tested using `synctest` only.
+We implement and test a new ticker type - `tickers.Exponential` which implements an exponential backoff ticker.
 
 
