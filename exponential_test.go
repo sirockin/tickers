@@ -128,10 +128,21 @@ func TestExponentialStop(t *testing.T) {
 				ticker.Stop()
 
 				synctest.Wait() // Wait for goroutines to exit
-				if _, ok := receivedValue(ticker.C); ok {
+				if receivedValue(ticker.C) {
 					t.Fatalf("Ticker channel should not have value after Stop()")
 				}
 			})
 		})
+	}
+}
+
+// receivedValue immediately returns a boolean indicating whether a new value
+// has been sent to the channel
+func receivedValue(ch <-chan time.Time) bool {
+	select {
+	case <-ch:
+		return true
+	default:
+		return false
 	}
 }
