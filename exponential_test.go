@@ -116,7 +116,7 @@ func TestExponentialWithJitter(t *testing.T) {
 }
 
 func TestExponentialStop(t *testing.T) {
-	cases := []int{0,2,40}
+	cases := []int{0, 2, 40}
 	for _, numIntervals := range cases {
 		t.Run(fmt.Sprintf("Stop after %d intervals", numIntervals), func(t *testing.T) {
 			synctest.Test(t, func(t *testing.T) {
