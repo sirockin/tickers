@@ -13,20 +13,19 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go-version: ['1.23', '1.24', '1.25']
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: '1.25'
 
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.out ./...
 
       - name: Upload coverage
-        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.25'
+        if: matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage.out
@@ -45,10 +44,12 @@ jobs:
       - name: Run go vet
         run: go vet ./...
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
+      # TODO: Re-enable once golangci-lint supports Go 1.25
+      # Currently fails with: "the Go language version used to build golangci-lint is lower than the targeted Go version (1.25.0)"
+      # - name: Run golangci-lint
+      #   uses: golangci/golangci-lint-action@v6
+      #   with:
+      #     version: latest
 
   security:
     name: Security

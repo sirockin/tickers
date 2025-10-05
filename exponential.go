@@ -49,7 +49,7 @@ func NewExponential(initialDuration time.Duration, factor float64, opts ...Expon
 	go func() {
 		nextInterval := e.interval
 		if e.jitter > 0 {
-			nextInterval += time.Duration(rand.Int64N(int64(e.jitter)))
+			nextInterval += time.Duration(rand.Int64N(int64(e.jitter))) // #nosec G404 -- using math/rand for timing jitter is acceptable
 		}
 		ticker := time.NewTimer(nextInterval)
 
@@ -61,7 +61,7 @@ func NewExponential(initialDuration time.Duration, factor float64, opts ...Expon
 					e.interval = time.Duration(float64(e.interval) * e.factor)
 					nextInterval = e.interval
 					if e.jitter > 0 {
-						nextInterval += time.Duration(rand.Int64N(int64(e.jitter)))
+						nextInterval += time.Duration(rand.Int64N(int64(e.jitter))) // #nosec G404 -- using math/rand for timing jitter is acceptable
 					}
 					ticker.Reset(nextInterval)
 				case <-e.done:
