@@ -39,19 +39,21 @@ func NewExponential(initialDuration time.Duration, factor float64, opts ...Expon
 			nextInterval += time.Duration(rand.Int64N(int64(e.jitter)))
 		}
 		ticker := time.NewTimer(nextInterval)
-		defer ticker.Stop()
 
 		for {
 			select {
 			case t := <-ticker.C:
-				e.C <- t
-				ticker.Stop()
-				e.interval = time.Duration(float64(e.interval) * e.factor)
-				nextInterval = e.interval
-				if e.jitter > 0 {
-					nextInterval += time.Duration(rand.Int64N(int64(e.jitter)))
+				select {
+				case e.C <- t:
+					e.interval = time.Duration(float64(e.interval) * e.factor)
+					nextInterval = e.interval
+					if e.jitter > 0 {
+						nextInterval += time.Duration(rand.Int64N(int64(e.jitter)))
+					}
+					ticker.Reset(nextInterval)
+				case <-e.done:
+					return
 				}
-				ticker = time.NewTimer(nextInterval)
 			case <-e.done:
 				return
 			}
