@@ -40,27 +40,15 @@ func TestExponentialIntervals(t *testing.T) {
 			// Run inside synctest to use mocked time
 			synctest.Test(t, func(t *testing.T) {
 				ticker := tickers.NewExponential(tc.initialDuration, tc.factor)
+				start := time.Now()
 				defer ticker.Stop()
 				for i, expectedInterval := range tc.expectedIntervals {
-					time.Sleep(expectedInterval - 1*time.Millisecond)
-					synctest.Wait() // Make sure any goroutines are unlocked
-					if _, ok := receivedValue(ticker.C); ok {
-						t.Fatalf("Ticker channel should not have value before interval %d", i)
+					<-ticker.C
+					elapsed := time.Since(start)
+					if elapsed != expectedInterval {
+						t.Fatalf("at interval %d expected interval of %v, got %v", i, expectedInterval, elapsed)
 					}
-					time.Sleep(1 * time.Millisecond)
-					// beforeWait := time.Now()
-					synctest.Wait() // Make sure any goroutines are unlocked
-					// if time.Since(beforeWait) == 0 {
-					// 	t.Fatalf("some time should have elapsed")
-					// }
-					got, ok := receivedValue(ticker.C)
-					if !ok {
-						t.Fatalf("Ticker channel should have value after interval has elapsed")
-					}
-					expected := time.Now()
-					if got != expected {
-						t.Fatalf("Expected: %v but got %v", expected, got)
-					}
+					start = time.Now()
 				}
 			})
 		})
@@ -113,7 +101,7 @@ func TestExponentialWithJitter(t *testing.T) {
 					val := <-ticker.C
 					now := time.Now()
 					if val != now {
-						t.Fatalf("expected %v but got %v", now, val )
+						t.Fatalf("expected %v but got %v", now, val)
 					}
 					if time.Since(earliest) > tc.jitter {
 						t.Fatalf("Received too late")
