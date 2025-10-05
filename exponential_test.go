@@ -105,20 +105,18 @@ func TestExponentialWithJitter(t *testing.T) {
 				defer ticker.Stop()
 				for i, expectedInterval := range tc.expectedIntervals {
 					time.Sleep(expectedInterval - 1*time.Millisecond)
+					earliest := time.Now()
 					synctest.Wait() // Make sure any goroutines are unlocked
 					if _, ok := receivedValue(ticker.C); ok {
 						t.Fatalf("Ticker channel should not have value before interval %d", i)
 					}
-					earliest := time.Now()
-					time.Sleep(1 * time.Millisecond+tc.jitter)
-					synctest.Wait() // Make sure any goroutines are unlocked
-					got, ok := receivedValue(ticker.C)
-					if !ok {
-						t.Fatalf("Ticker channel should have value after interval has elapsed")
+					val := <-ticker.C
+					now := time.Now()
+					if val != now {
+						t.Fatalf("expected %v but got %v", now, val )
 					}
-					latest := time.Now()
-					if got.After(latest) || got.Before(earliest) {
-						t.Fatalf("Expected: time between %v and %v but got %v", earliest, latest,  got)
+					if time.Since(earliest) > tc.jitter {
+						t.Fatalf("Received too late")
 					}
 				}
 			})
