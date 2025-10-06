@@ -115,6 +115,31 @@ func TestExponentialWithJitter(t *testing.T) {
 	}
 }
 
+func TestExponentialNegativeJitterIsIgnored(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ticker := tickers.NewExponential(time.Second, 2.0, tickers.WithJitter(-time.Second))
+		defer ticker.Stop()
+
+		// Should behave exactly like no jitter - intervals should be precise
+		expectedIntervals := []time.Duration{
+			time.Second,     // 1 * 2^0
+			2 * time.Second, // 1 * 2^1
+			4 * time.Second, // 1 * 2^2
+		}
+
+		start := time.Now()
+		for i, expected := range expectedIntervals {
+			<-ticker.C
+			elapsed := time.Since(start)
+
+			if elapsed != expected {
+				t.Errorf("interval %d: got %v, want %v", i, elapsed, expected)
+			}
+			start = time.Now()
+		}
+	})
+}
+
 func TestExponentialStop(t *testing.T) {
 	cases := []int{0, 2, 40}
 	for _, numIntervals := range cases {
@@ -134,6 +159,22 @@ func TestExponentialStop(t *testing.T) {
 			})
 		})
 	}
+}
+
+func TestExponentialMultipleStopCalls(t *testing.T) {
+	synctest.Test(t, func(t *testing.T) {
+		ticker := tickers.NewExponential(time.Second, 2.0)
+
+		// Call Stop multiple times - should not panic
+		ticker.Stop()
+		ticker.Stop()
+		ticker.Stop()
+
+		synctest.Wait() // Wait for goroutines to exit
+		if receivedValue(ticker.C) {
+			t.Fatalf("Ticker channel should not have value after Stop()")
+		}
+	})
 }
 
 // receivedValue immediately returns a boolean indicating whether a new value
